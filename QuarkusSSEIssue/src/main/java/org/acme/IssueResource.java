@@ -46,6 +46,10 @@ public class IssueResource {
                 recoverWithMulti(throwable -> Multi.createFrom().failure(throwable) );
     }
 
+    public record DataOrError<T>(T data, Throwable error) {
+
+    }
+
     /**
      * CASE3: In this example the result will be the same, even with a more complex recover treatment.
      */
@@ -118,5 +122,16 @@ public class IssueResource {
         return Multi.
                 createFrom().
                 items(inconsistentData);
+    }
+
+    /**
+     * CASE7 - In this example the error will be the unique item, and the issue will be the same the other cases (1 to 5).
+     */
+    @GET
+    @Path("/case7")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    public Multi<Object> case7() {
+        return Multi.createFrom().failure(new RuntimeException("Teste")).onFailure().recoverWithCompletion();
     }
 }

@@ -96,3 +96,7 @@ curl http://localhost:8080/issue/case5 # this will wait forever
 ```shell script
 curl http://localhost:8080/issue/case6 # this will receive an http error (but no data)
 ```
+
+```shell script
+curl http://localhost:8080/issue/case7 # this will wait forever
+```

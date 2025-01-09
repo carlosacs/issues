@@ -90,5 +90,14 @@ class IssueResourceTest {
         runTest("/issue/case5");
     }
 
+    /**
+     * CASE7 - In this example the error will be the unique item, and the issue will be the same the other cases (1 to 5).
+     */
+    @Test
+    void testCase7() {
+        runTest("/issue/case7");
+    }
+
+
 
 }
