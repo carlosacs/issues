@@ -134,4 +134,32 @@ public class IssueResource {
     public Multi<Object> case7() {
         return Multi.createFrom().failure(new RuntimeException("Teste")).onFailure().recoverWithCompletion();
     }
+
+    /**
+     * CASE8 - In this example we tried to use an emitter and control the emissions manually, but no success.
+     */
+    @GET
+    @Path("/case8")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    public Multi<Integer> case8() {
+        return Multi.createFrom().emitter(multiEmitter -> {
+
+            String[] inconsistentData = {"0", "1", "2", "3", "A", "4", "5"};
+
+            Stream.of(inconsistentData).forEach(s -> {
+                try {
+                    multiEmitter.emit(Integer.parseInt(s));
+                } catch (Throwable t) {
+                    try {
+                        multiEmitter.fail(t);
+                    } finally {
+                        multiEmitter.complete();
+                    }
+                    throw t;
+                }
+            });
+
+        });
+    }
 }

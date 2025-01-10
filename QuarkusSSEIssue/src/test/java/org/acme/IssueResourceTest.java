@@ -98,6 +98,12 @@ class IssueResourceTest {
         runTest("/issue/case7");
     }
 
-
+    /**
+     * CASE8 - In this example we tried to use an emitter and control the emissions manually, but no success.
+     */
+    @Test
+    void testCase8() {
+        runTest("/issue/case8");
+    }
 
 }
