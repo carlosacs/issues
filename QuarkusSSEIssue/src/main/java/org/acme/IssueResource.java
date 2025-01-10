@@ -4,7 +4,10 @@ import io.smallrye.mutiny.Multi;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.sse.Sse;
+import jakarta.ws.rs.sse.SseEventSink;
 import org.jboss.resteasy.reactive.RestStreamElementType;
 
 import java.util.stream.Stream;
@@ -18,7 +21,7 @@ public class IssueResource {
     @GET
     @Path("/case1")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case1() {
         Stream<Integer> inconsistentData = Stream.
                 of("0", "1", "2", "3", "A", "4", "5").
@@ -34,7 +37,7 @@ public class IssueResource {
     @GET
     @Path("/case2")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case2() {
         Stream<Integer> inconsistentData = Stream.
                 of("0", "1", "2", "3", "A", "4", "5").
@@ -56,7 +59,7 @@ public class IssueResource {
     @GET
     @Path("/case3")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case3() {
         Stream<Integer> inconsistentData = Stream.
                 of("0", "1", "2", "3", "A", "4", "5").
@@ -79,7 +82,7 @@ public class IssueResource {
     @GET
     @Path("/case4")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case4() {
         Stream<Integer> inconsistentData = Stream.
                 of("0", "1", "2", "3", "A", "4", "5").
@@ -97,7 +100,7 @@ public class IssueResource {
     @GET
     @Path("/case5")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case5() {
         Stream<Integer> inconsistentData = Stream.
                 of("A", "1", "2", "3", "4", "5").
@@ -113,7 +116,7 @@ public class IssueResource {
     @GET
     @Path("/case6")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case6() {
         Integer.parseInt("A");
         Stream<Integer> inconsistentData = Stream.
@@ -130,7 +133,7 @@ public class IssueResource {
     @GET
     @Path("/case7")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Object> case7() {
         return Multi.createFrom().failure(new RuntimeException("Teste")).onFailure().recoverWithCompletion();
     }
@@ -141,7 +144,7 @@ public class IssueResource {
     @GET
     @Path("/case8")
     @Produces(MediaType.SERVER_SENT_EVENTS)
-    @RestStreamElementType(MediaType.TEXT_PLAIN)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
     public Multi<Integer> case8() {
         return Multi.createFrom().emitter(multiEmitter -> {
 
@@ -162,4 +165,25 @@ public class IssueResource {
 
         });
     }
+
+    /**
+     * CASE9 - This is a potencial workaround, using Sse and SseEventSink (thanks to Georgios Andrianakis aka geoand).
+     */
+    @GET
+    @Path("/case9")
+    @Produces(MediaType.SERVER_SENT_EVENTS)
+    @RestStreamElementType(MediaType.APPLICATION_JSON)
+    public void case9(@Context Sse sse, @Context SseEventSink eventSink) {
+        Stream<String> inconsistentData = Stream.of("0", "1", "2", "3", "A", "4", "5");
+        inconsistentData.forEach(s -> {
+            try {
+                eventSink.send(sse.newEvent(Integer.parseInt(s)+""));
+            } catch (Exception e) {
+                eventSink.send(sse.newEvent("error", e.toString()));
+                eventSink.close();
+            }
+        });
+    }
+
+
 }
